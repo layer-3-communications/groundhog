@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeFamilies, FlexibleContexts, FlexibleInstances, OverloadedStrings, UndecidableInstances, OverlappingInstances, BangPatterns #-}
+{-# LANGUAGE TypeFamilies, FlexibleContexts, FlexibleInstances, OverloadedStrings, UndecidableInstances, BangPatterns #-}
 
 -- | See detailed documentation for PostgreSQL arrays at http://www.postgresql.org/docs/9.2/static/arrays.html and http://www.postgresql.org/docs/9.2/static/functions-array.html
 module Database.Groundhog.Postgresql.Array
@@ -71,10 +71,10 @@ arrayType p a = DbOther $ OtherTypeDef $ [Right elemType, Left "[]"] where
 class ArrayElem a where
   parseElem :: Parser a
 
-instance ArrayElem a => ArrayElem (Array a) where
+instance {-# OVERLAPPING #-} ArrayElem a => ArrayElem (Array a) where
   parseElem = parseArr
 
-instance PrimitivePersistField a => ArrayElem a where
+instance {-# OVERLAPPING #-} PrimitivePersistField a => ArrayElem a where
   parseElem = fmap (fromPrimitivePersistValue . PersistByteString) parseString
 
 instance (ArrayElem a, PrimitivePersistField a) => PrimitivePersistField (Array a) where

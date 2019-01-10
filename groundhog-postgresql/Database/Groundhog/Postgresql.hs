@@ -34,6 +34,7 @@ import Database.PostgreSQL.Simple.Ok (Ok (..))
 import qualified Database.PostgreSQL.LibPQ as LibPQ
 
 import Control.Arrow ((***), second)
+import Data.Coerce (coerce)
 import Control.Exception (throw)
 import Control.Monad (forM, liftM, liftM2, (>=>))
 import Control.Monad.IO.Class (MonadIO(..))
@@ -52,6 +53,8 @@ import Data.Maybe (fromJust, fromMaybe, isJust, mapMaybe)
 import Data.Monoid hiding ((<>))
 import Data.Pool
 import Data.Time.LocalTime (localTimeToUTC, utc)
+
+import qualified Data.Vector as V
 
 -- work around for no Semigroup instance of PG.Query prior to
 -- postgresql-simple 0.5.3.0
@@ -783,6 +786,7 @@ instance PGTF.ToField P where
   toField (P (PersistZonedTime (ZT t))) = PGTF.toField t
   toField (P PersistNull)               = PGTF.toField PG.Null
   toField (P (PersistCustom _ _))       = error "toField: unexpected PersistCustom"
+  toField (P (PersistList as))          = PGTF.toField (coerce as :: V.Vector P)
 
 type Getter a = PGFF.FieldParser a
 
